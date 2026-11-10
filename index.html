@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>JARVIS AI</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#06101d;--panel:#0b1c2d;--line:#153a54;--cyan:#55dfff;--blue:#168ed1;--muted:#91a9ba;--white:#eaf8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 32%,#102c43 0,#071522 42%,#040a12 100%);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+.app{max-width:620px;margin:auto;min-height:100vh;padding:env(safe-area-inset-top) 18px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 2px 14px;border-bottom:1px solid #16405a}
+.brand{letter-spacing:.22em;color:var(--cyan);font-weight:800;font-size:19px}.sub{font-size:10px;color:var(--muted);letter-spacing:.18em;margin-top:4px}
+.status{font-size:11px;color:#9ac9dc;border:1px solid #1a526d;padding:7px 10px;border-radius:30px}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding-top:24px}
+.eyebrow{color:#86b6ce;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.reactor-wrap{position:relative;width:min(70vw,290px);height:min(70vw,290px);margin:22px auto 16px;display:grid;place-items:center}
+.ring{position:absolute;border:1px solid #1d86ad;border-radius:50%;inset:5%;box-shadow:0 0 24px #087db333,inset 0 0 22px #087db322}
+.ring.r2{inset:14%;border-style:dashed;border-color:#2b9bc7;animation:spin 24s linear infinite}
+.ring.r3{inset:23%;border:2px solid #4ddaff66;box-shadow:0 0 30px #26bdf455,inset 0 0 24px #26bdf433}
+.ring:before,.ring:after{content:"";position:absolute;width:8px;height:8px;background:var(--cyan);border-radius:50%;box-shadow:0 0 12px var(--cyan);top:10%;left:18%}
+.ring:after{top:auto;left:auto;bottom:12%;right:15%}
+.core{width:34%;height:34%;border-radius:50%;background:radial-gradient(circle,#d8fbff 0,#55dfff 12%,#0876b3 42%,#06243c 72%);box-shadow:0 0 22px #36caff,0 0 65px #168ed188;display:grid;place-items:center;z-index:2}
+.core span{font-size:30px;color:#eaffff;text-shadow:0 0 12px white}
+.listening .ring.r2{animation:spin 3s linear infinite}.listening .core{box-shadow:0 0 30px #7cf4ff,0 0 90px #168ed1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.state{font-size:17px;font-weight:650;margin-top:3px}.hint{font-size:12px;color:var(--muted);text-align:center;margin:8px 0 20px;line-height:1.5}
+.controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+button{border:1px solid #24627e;background:#0b2940;color:var(--white);padding:12px 17px;border-radius:13px;font-weight:650;font-size:13px;cursor:pointer}
+button.primary{background:linear-gradient(135deg,#087eb8,#1455a0);border-color:#55dfff;box-shadow:0 0 18px #168ed144}
+button:disabled{opacity:.5}
+.panel{width:100%;background:#091a2acc;border:1px solid #16435d;border-radius:18px;padding:15px;margin-top:22px;box-shadow:0 10px 35px #0004}
+.panel h2{font-size:12px;letter-spacing:.14em;color:var(--cyan);margin:0 0 12px;text-transform:uppercase}
+.reply{min-height:48px;font-size:14px;line-height:1.55;color:#d9f1fb;white-space:pre-wrap}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.quick button{text-align:left;font-size:12px;padding:11px}
+.chatrow{display:flex;gap:8px;margin-top:10px}.chatrow input{min-width:0;flex:1;background:#061321;border:1px solid #20516b;border-radius:12px;color:white;padding:12px;font-size:14px;outline:none}
+.chatrow button{padding:0 14px}
+footer{text-align:center;color:#66899d;font-size:10px;line-height:1.5;padding:18px 8px 4px}
+small.warn{display:block;color:#e9c58a;font-size:11px;margin-top:10px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="brand">J.A.R.V.I.S.</div><div class="sub">PERSONAL AI INTERFACE · V1.0</div></div><div class="status" id="status">● STANDBY</div></header>
+<main>
+<div class="eyebrow">VOICE INTERFACE ONLINE</div>
+<div class="reactor-wrap" id="reactor"><div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div><div class="core"><span>J</span></div></div>
+<div class="state" id="state">Ready when you are.</div>
+<div class="hint" id="hint">Tap the microphone and speak a command.<br>Example: “Open YouTube” or “What time is it?”</div>
+<div class="controls"><button class="primary" id="listen">🎙 Start listening</button><button id="stop">■ Stop</button></div>
+
+<section class="panel">
+<h2>JARVIS response</h2><div class="reply" id="reply">Good day. JARVIS interface initialized. How may I help?</div>
+<div class="chatrow"><input id="command" placeholder="Type a command…" autocomplete="off"><button class="primary" id="send">Send</button></div>
+</section>
+<section class="panel">
+<h2>Quick commands</h2>
+<div class="quick">
+<button data-cmd="Open YouTube">▶ Open YouTube</button>
+<button data-cmd="Open Google">⌕ Open Google</button>
+<button data-cmd="Open WhatsApp">◉ Open WhatsApp</button>
+<button data-cmd="What time is it?">◷ Tell me the time</button>
+<button data-cmd="Tell me a study tip">▤ Study tip</button>
+<button data-cmd="Who are you?">✦ Who are you?</button>
+</div>
+<small class="warn">Phone actions are limited by Android/browser permissions. This starter cannot silently control every app or listen continuously in the background.</small>
+</section>
+</main>
+<footer>JARVIS AI · Prototype running on this device<br>Microphone access is used only after you tap Start listening.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const reactor=$('reactor'), reply=$('reply'), state=$('state'), status=$('status');
+let recognition=null, listening=false;
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang='en-IN'; u.rate=1; u.pitch=.95;
+  speechSynthesis.speak(u);
+}
+function say(text){reply.textContent=text;state.textContent='Response ready';status.textContent='● ONLINE';speak(text);}
+function openUrl(url){window.open(url,'_blank','noopener');}
+function handle(raw){
+ const c=raw.trim(), s=c.toLowerCase();
+ if(!c)return;
+ $('command').value=c;
+ if(s.includes('youtube')){say('Opening YouTube.');openUrl('https://www.youtube.com/');return;}
+ if(s.includes('whatsapp')){say('Opening WhatsApp. If the app does not open, WhatsApp Web will be available.');openUrl('https://wa.me/');return;}
+ if(s.includes('google')||s.includes('search')){say('Opening Google search.');openUrl('https://www.google.com/');return;}
+ if(s.includes('time')){say('The time is '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));return;}
+ if(s.includes('date')){say('Today is '+new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));return;}
+ if(s.includes('study')){say('Try a focused 25 minute study session, then take a 5 minute break. Start with one small topic.');return;}
+ if(s.includes('who are you')||s.includes('your name')){say('I am JARVIS, your personal assistant prototype. My voice and command features are active.');return;}
+ if(s.includes('hello')||s.includes('hey jarvis')){say('Hello. I am online and ready for your command.');return;}
+ say('I heard: '+c+'. I can currently handle basic commands such as opening YouTube, WhatsApp and Google, and telling the time. A secure AI connection can be added in a later version.');
+}
+function start(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){say('Voice recognition is not supported in this browser. Try Chrome, allow microphone permission, or type your command below.');return;}
+ if(recognition){try{recognition.stop()}catch(e){}}
+ recognition=new SR();recognition.lang='en-IN';recognition.interimResults=false;recognition.maxAlternatives=1;
+ recognition.onstart=()=>{listening=true;reactor.classList.add('listening');state.textContent='Listening…';status.textContent='● LISTENING';$('hint').textContent='I am listening. Speak now.';};
+ recognition.onresult=e=>handle(e.results[0][0].transcript);
+ recognition.onerror=e=>{state.textContent='Voice input unavailable';status.textContent='● STANDBY';reply.textContent='Microphone/recognition issue: '+e.error+'. You can type a command instead.';};
+ recognition.onend=()=>{listening=false;reactor.classList.remove('listening');if(status.textContent==='● LISTENING')status.textContent='● STANDBY';$('hint').innerHTML='Tap the microphone and speak a command.<br>Example: “Open YouTube” or “What time is it?”';};
+ try{recognition.start()}catch(e){say('Please wait a moment and try again.');}
+}
+$('listen').addEventListener('click',start);
+$('stop').addEventListener('click',()=>{if(recognition)recognition.stop();speechSynthesis?.cancel();state.textContent='Stopped';status.textContent='● STANDBY';});
+$('send').addEventListener('click',()=>handle($('command').value));
+$('command').addEventListener('keydown',e=>{if(e.key==='Enter')handle($('command').value)});
+document.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('click',()=>handle(b.dataset.cmd)));
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
