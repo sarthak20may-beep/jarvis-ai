@@ -94,7 +94,19 @@ function handle(raw){
  if(s.includes('study')){say('Try a focused 25 minute study session, then take a 5 minute break. Start with one small topic.');return;}
  if(s.includes('who are you')||s.includes('your name')){say('I am JARVIS, your personal assistant prototype. My voice and command features are active.');return;}
  if(s.includes('hello')||s.includes('hey jarvis')){say('Hello. I am online and ready for your command.');return;}
- say('I heard: '+c+'. I can currently handle basic commands such as opening YouTube, WhatsApp and Google, and telling the time. A secure AI connection can be added in a later version.');
+ fetch('https://jarvis-ai-backend.sarthak20may.workers.dev/ask', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ message: c })
+})
+.then(response => response.json())
+.then(data => {
+  if (!data.answer) throw new Error(data.error || 'AI request failed');
+  say(data.answer);
+})
+.catch(error => {
+  say('AI connection error: ' + error.message);
+});
 }
 function start(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
