@@ -50,7 +50,6 @@ small.warn{display:block;color:#e9c58a;font-size:11px;margin-top:10px;line-heigh
 <div class="state" id="state">Ready when you are.</div>
 <div class="hint" id="hint">Tap the microphone and speak a command.<br>Example: “Open YouTube” or “What time is it?”</div>
 <div class="controls"><button class="primary" id="listen">🎙 Start listening</button><button id="stop">■ Stop</button></div>
-
 <section class="panel">
 <h2>JARVIS response</h2><div class="reply" id="reply">Good day. JARVIS interface initialized. How may I help?</div>
 <div class="chatrow"><input id="command" placeholder="Type a command…" autocomplete="off"><button class="primary" id="send">Send</button></div>
@@ -61,11 +60,15 @@ small.warn{display:block;color:#e9c58a;font-size:11px;margin-top:10px;line-heigh
 <button data-cmd="Open YouTube">▶ Open YouTube</button>
 <button data-cmd="Open Google">⌕ Open Google</button>
 <button data-cmd="Open WhatsApp">◉ Open WhatsApp</button>
+<button data-cmd="Open Instagram">◎ Open Instagram</button>
+<button data-cmd="Open Clash of Clans">⚔ Open Clash of Clans</button>
+<button data-cmd="Open BGMI">🎮 Open BGMI</button>
+<button data-cmd="Open Call of Duty Mobile">🎮 Open Call of Duty</button>
 <button data-cmd="What time is it?">◷ Tell me the time</button>
 <button data-cmd="Tell me a study tip">▤ Study tip</button>
 <button data-cmd="Who are you?">✦ Who are you?</button>
 </div>
-<small class="warn">Phone actions are limited by Android/browser permissions. This starter cannot silently control every app or listen continuously in the background.</small>
+<small class="warn">Android may ask which app to open. App launching depends on the app being installed and browser support. If it does not open, the fallback page will appear.</small>
 </section>
 </main>
 <footer>JARVIS AI · Prototype running on this device<br>Microphone access is used only after you tap Start listening.</footer>
@@ -82,12 +85,23 @@ function speak(text){
 }
 function say(text){reply.textContent=text;state.textContent='Response ready';status.textContent='● ONLINE';speak(text);}
 function openUrl(url){window.open(url,'_blank','noopener');}
+function launchAndroidApp(packageName, targetUrl, fallbackUrl, appName){
+  say('Trying to open '+appName+'.');
+  const intent='intent://'+targetUrl.replace(/^https?:\/\//,'')+
+    '#Intent;scheme=https;package='+packageName+
+    ';S.browser_fallback_url='+encodeURIComponent(fallbackUrl)+';end';
+  window.location.href=intent;
+}
 function handle(raw){
  const c=raw.trim(), s=c.toLowerCase();
  if(!c)return;
  $('command').value=c;
  if(s.includes('youtube')){say('Opening YouTube.');openUrl('https://www.youtube.com/');return;}
- if(s.includes('whatsapp')){say('Opening WhatsApp. If the app does not open, WhatsApp Web will be available.');openUrl('https://wa.me/');return;}
+ if(s.includes('whatsapp')){launchAndroidApp('com.whatsapp','wa.me/','https://web.whatsapp.com/','WhatsApp');return;}
+ if(s.includes('instagram')){launchAndroidApp('com.instagram.android','www.instagram.com/','https://www.instagram.com/','Instagram');return;}
+ if(s.includes('clash of clans')||s.includes('clash')){launchAndroidApp('com.supercell.clashofclans','link.clashofclans.com/','https://play.google.com/store/apps/details?id=com.supercell.clashofclans','Clash of Clans');return;}
+ if(s.includes('bgmi')||s.includes('battleground')){launchAndroidApp('com.pubg.imobile','www.battlegroundsmobileindia.com/','https://play.google.com/store/apps/details?id=com.pubg.imobile','BGMI');return;}
+ if(s.includes('call of duty')||s.includes('cod mobile')||s==='codm'){launchAndroidApp('com.activision.callofduty.shooter','www.callofduty.com/mobile','https://play.google.com/store/apps/details?id=com.activision.callofduty.shooter','Call of Duty Mobile');return;}
  if(s.includes('google')||s.includes('search')){say('Opening Google search.');openUrl('https://www.google.com/');return;}
  if(s.includes('time')){say('The time is '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));return;}
  if(s.includes('date')){say('Today is '+new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));return;}
