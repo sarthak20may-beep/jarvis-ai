@@ -97,7 +97,7 @@ function handle(raw){
  if(!c)return;
  $('command').value=c;
  if(s.includes('youtube')){say('Opening YouTube.');openUrl('https://www.youtube.com/');return;}
- if(s.includes('whatsapp')){say('Opening WhatsApp.');window.location.href='intent://send/#Intent;scheme=whatsapp;package=com.whatsapp;end';return;}
+ if(s.includes('whatsapp')){say('Opening WhatsApp.');window.location.href='intent://#Intent;scheme=whatsapp;package=com.whatsapp;end';return;}
  if(s.includes('instagram')){launchAndroidApp('com.instagram.android','www.instagram.com/','https://www.instagram.com/','Instagram');return;}
  if(s.includes('clash of clans')||s.includes('clash')){launchAndroidApp('com.supercell.clashofclans','link.clashofclans.com/','https://play.google.com/store/apps/details?id=com.supercell.clashofclans','Clash of Clans');return;}
  if(s.includes('bgmi')||s.includes('battleground')){launchAndroidApp('com.pubg.imobile','www.battlegroundsmobileindia.com/','https://play.google.com/store/apps/details?id=com.pubg.imobile','BGMI');return;}
